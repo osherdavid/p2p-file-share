@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "p2p-file-share"
+version = "0.1.0"
+description = "Simple peer-to-peer file sharing application."
+readme = "README.md"
+authors = ["Your Name <you@example.com>"]
+
+packages = [
+  { include = "p2p_file_share" },
+]
+
+[[tool.poetry.include]]
+path = "p2p_file_share/main.py"
+
+[tool.poetry.dependencies]
+python = ">=3.13"
+click = "^8.3.0"
+pydantic = "^2.11.9"
+tqdm = "^4.67.1"
+typer = "^0.19.2"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.18.2"
+ruff = "^0.13.1"
+ipdb = "^0.13.13"
+types-tqdm = "^4.67.0.20250809"
+
+[tool.poetry.scripts]
+p2p-file-share = "p2p_file_share.main:main"
+
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+lint.extend-ignore = ["E203", "D104", "D100", "D211", "D213", "D203"]
+exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
+lint.select = ["E", "F", "W", "C90", "D", "I"]
+
+[tool.mypy]
+files = ["p2p_file_share"]
+ignore_missing_imports = false
+follow_imports = "silent"
+show_error_codes = true
+warn_unused_configs = true
+no_implicit_optional = true

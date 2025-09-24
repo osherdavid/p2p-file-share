@@ -23,16 +23,18 @@ class Client:
         self.host = host
         self.port = port
 
-    def get(self, filename: str):
+    def get(self, filename: str, output_filename: str):
         """Request a file from the server.
 
         :param filename: The name of the file to request.
         """
-        self.logger.debug(f'Getting file "{filename}" from {self.host}:{self.port}')
+        output_filename = os.path.abspath(os.path.join(output_filename, os.path.basename(filename)) if os.path.isdir(output_filename) else output_filename)
+        
+        self.logger.debug(f'Getting file "{filename}" from {self.host}:{self.port} and saving to "{output_filename}"')
         request = RequestPacket(
             filename=filename,
-            filesize=os.path.getsize(filename) if os.path.isfile(filename) else 0,
-            filehash=self.get_file_hash(filename) if os.path.isfile(filename) else "",
+            filesize=os.path.getsize(output_filename) if os.path.isfile(output_filename) else 0,
+            filehash=self.get_file_hash(output_filename) if os.path.isfile(output_filename) else "",
         )
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -43,27 +45,27 @@ class Client:
             if preTransferPacket.exists:
                 if request.filesize > 0 and not preTransferPacket.continuation:
                     if typer.confirm("The local file does not match the server's file. Overwrite?", default=True):
-                        typer.secho(f"Overwriting {filename}.", fg=typer.colors.YELLOW)
+                        typer.secho(f"Overwriting {output_filename}.", fg=typer.colors.YELLOW)
                         s.sendall(b"ACK")
-                        self._download_file(request, preTransferPacket, s)
+                        self._download_file(output_filename, request, preTransferPacket, s)
                         return
                     else:
-                        typer.secho(f'Aborting download of "{filename}".', fg=typer.colors.RED)
+                        typer.secho(f'Aborting download of "{output_filename}".', fg=typer.colors.RED)
                         return
                 elif preTransferPacket.continuation:
-                    typer.secho(f'Continuing download of "{filename}".', fg=typer.colors.YELLOW)
-                self._download_file(request, preTransferPacket, s)
+                    typer.secho(f'Continuing download of "{output_filename}".', fg=typer.colors.YELLOW)
+                self._download_file(output_filename, request, preTransferPacket, s)
             else:
                 typer.secho(f'File "{filename}" does not exist on the server.', fg=typer.colors.RED)
 
-    def _download_file(self, request: RequestPacket, preTransferPacket: PreTransferPacket, sock: socket.socket):
+    def _download_file(self, output_filename: str, request: RequestPacket, preTransferPacket: PreTransferPacket, sock: socket.socket):
         """Download the file from the server.
 
         :param request: The original request packet.
         :param preTransferPacket: The pre-transfer packet received from the server.
         :param sock: The connected socket to the server.
         """
-        with open(request.filename, "ab" if preTransferPacket.continuation else "wb") as f:
+        with open(output_filename, "ab" if preTransferPacket.continuation else "wb") as f:
             for _ in tqdm(range(preTransferPacket.number_of_chunks)):
                 chunk = sock.recv(4096)
                 f.write(chunk)

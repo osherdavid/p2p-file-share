@@ -1,4 +1,5 @@
 import click
+import os
 from p2p_file_share.server.server import Server
 from p2p_file_share.client.client import Client
 from p2p_file_share.log import setup_logger
@@ -21,9 +22,11 @@ def start(port: int):
 @click.option("--host", "-h", type=str, required=True, help="The host to connect to.")
 @click.option("--port", "-p", type=int,  default=DEFAULT_PORT, help="The port to connect to.")
 @click.argument("filename", type=str)
-def get(filename:str, host: str, port: int):
-    print(f'Starting client to get file "{filename}" from {host}:{port}')
-    Client(host, port).get(filename)
+@click.argument("output_filename", required=False, type=str)
+def get(filename:str, output_filename: str, host: str, port: int):
+    output = output_filename if output_filename else os.path.basename(filename)
+    print(f'Starting client to get file "{filename}" from {host}:{port} and save to "{output}"...')
+    Client(host, port).get(filename, output)
 
 
 if __name__ == "__main__":

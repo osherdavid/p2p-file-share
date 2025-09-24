@@ -99,9 +99,6 @@ class Server:
             self.logger.info(f"Starting file transfer to {addr} for file '{request.filename}'")
             for chunk in file_chunker.get_chunks(start=start_byte):
                 conn.sendall(chunk)
-                import time
-
-                time.sleep(0.1)  # Throttle to avoid overwhelming the client
                 conn.recv(3)  # Wait for ACK
 
     def _sigint_handler(self, sig, frame):

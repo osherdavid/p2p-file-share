@@ -1,20 +1,24 @@
-import click
 import os
-from p2p_file_share.server.server import Server
+
+import click
+
 from p2p_file_share.client.client import Client
 from p2p_file_share.log import setup_logger
+from p2p_file_share.server.server import Server
 
 DEFAULT_PORT = 12345
 
 @click.group()
 def main():
+    """Run a simple P2P file sharing application."""
     setup_logger()
 
 
 @main.command(help="Start a file sharing server.")
 @click.option("--port", "-p", type=int, default=DEFAULT_PORT, help="The port to listen on.")
 def start(port: int):
-    print(f"Starting server...")
+    """Start the file sharing server."""
+    print("Starting server...")
     Server(port).start()
 
 
@@ -24,6 +28,7 @@ def start(port: int):
 @click.argument("filename", type=str)
 @click.argument("output_filename", required=False, type=str)
 def get(filename:str, output_filename: str, host: str, port: int):
+    """Get a file from a peer."""
     output = output_filename if output_filename else os.path.basename(filename)
     print(f'Starting client to get file "{filename}" from {host}:{port} and save to "{output}"...')
     Client(host, port).get(filename, output)

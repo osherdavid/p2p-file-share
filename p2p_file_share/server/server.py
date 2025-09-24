@@ -3,8 +3,8 @@ import signal
 import socket
 import threading
 
-from p2p_file_share.log import setup_logger
 from p2p_file_share.common.models import PreTransferPacket, RequestPacket
+from p2p_file_share.log import setup_logger
 from p2p_file_share.server.file_chunker import FileChunker
 
 
@@ -87,10 +87,12 @@ class Server:
             )
             conn.sendall(preTransferPacket.to_bytes())
             if not exists:
-                self.logger.error(f"File '{request.filename}' does not exist. Notifying client and aborting transfer to {addr}.")
+                self.logger.error(f"File '{request.filename}' does not exist.\
+                                    Notifying client and aborting transfer to {addr}.")
                 return
             if not continueation and request.filesize > 0:
-                self.logger.info("Client requested continuation but no valid partial file found. Waiting for client approval.")
+                self.logger.info("Client requested continuation but no valid partial file found.\
+                                  Waiting for client approval.")
                 answer = conn.recv(3)  # Wait for client approval (could be improved with a proper message)
                 if answer != b"ACK":
                     print(f"Client did not approve continuation. Aborting transfer to {addr}.")

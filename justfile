@@ -16,7 +16,7 @@ set positional-arguments
     poetry run mypy .
 
 @check-format:
-    poetry run ruff check client server
+    poetry run ruff check p2p_file_share
     
 @format:
-    poetry run ruff check --fix client server
+    poetry run ruff check --fix p2p_file_share

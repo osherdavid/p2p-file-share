@@ -1,13 +1,12 @@
 import hashlib
 import os
 import socket
-import logging
 
 import typer
 from tqdm import tqdm
 
-from p2p_file_share.log import setup_logger
 from p2p_file_share.common.models import PreTransferPacket, RequestPacket
+from p2p_file_share.log import setup_logger
 
 
 class Client:
@@ -28,8 +27,10 @@ class Client:
 
         :param filename: The name of the file to request.
         """
-        output_filename = os.path.abspath(os.path.join(output_filename, os.path.basename(filename)) if os.path.isdir(output_filename) else output_filename)
-        
+        output_filename = os.path.abspath(os.path.join(output_filename, os.path.basename(filename))
+                                           if os.path.isdir(output_filename)
+                                           else output_filename)
+
         self.logger.debug(f'Getting file "{filename}" from {self.host}:{self.port} and saving to "{output_filename}"')
         request = RequestPacket(
             filename=filename,
@@ -58,7 +59,10 @@ class Client:
             else:
                 typer.secho(f'File "{filename}" does not exist on the server.', fg=typer.colors.RED)
 
-    def _download_file(self, output_filename: str, request: RequestPacket, preTransferPacket: PreTransferPacket, sock: socket.socket):
+    def _download_file(self, output_filename: str,
+                       request: RequestPacket,
+                       preTransferPacket: PreTransferPacket,
+                       sock: socket.socket):
         """Download the file from the server.
 
         :param request: The original request packet.

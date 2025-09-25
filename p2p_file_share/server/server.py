@@ -1,18 +1,15 @@
-import os
 import signal
 import socket
 import threading
 
-from p2p_file_share.common.models import PreTransferPacket, RequestPacket
 from p2p_file_share.log import setup_logger
-from p2p_file_share.server.file_chunker import FileChunker
+from p2p_file_share.server.requests_handler import RequestsHandler
 
 
 class Server:
     """The server class responsible for handling file sharing requests."""
 
     HOST: str = "0.0.0.0"  # Listen on all interfaces
-    RECIEVE_BUFFER_SIZE: int = 4096  # 4KB
 
     def __init__(self, port: int):
         """Initialize the server with the specified port.
@@ -25,6 +22,7 @@ class Server:
         self._should_run.set()
         self._sock = None  # type: socket.socket | None
         self._register_signal_handlers()
+        self.requests_handler = RequestsHandler()
 
     def start(self):
         """Start the server: bind, listen, and accept connections."""
@@ -52,6 +50,10 @@ class Server:
                 self._should_run.clear()
                 self.logger.info("Server stopped")
 
+    def _handle_client(self, conn: socket.socket, addr):
+        """Handle a single client connection in its own thread."""
+        self.requests_handler.handle_client_download(conn, addr)
+
     def stop(self):
         """Stop the server: clear run flag and close the listening socket to unblock accept()."""
         self.logger.info("Server stop requested")
@@ -62,46 +64,6 @@ class Server:
                 self._sock.close()
             except Exception:
                 pass
-
-    def _handle_client(self, conn: socket.socket, addr):
-        """Handle a single client connection in its own thread.
-
-        :param conn: The client socket connection.
-        :param addr: The client address.
-        """
-        with conn:
-            self.logger.info(f"Handling connection from {addr} in thread {threading.current_thread().name}")
-            request = RequestPacket.from_bytes(conn.recv(self.RECIEVE_BUFFER_SIZE))
-            self.logger.info(f"Received request from {addr}: {request}")
-            exists = os.path.isfile(request.filename)
-            file_chunker = FileChunker(request.filename)
-            continueation = (
-                request.filesize > 0 and exists and file_chunker.check_partial_file(request.filesize, request.filehash)
-            )
-            start_byte = request.filesize if continueation else 0
-            preTransferPacket = PreTransferPacket(
-                exists=exists,
-                continuation=continueation,
-                number_of_chunks=file_chunker.get_number_of_chunks(start=start_byte) if exists else 0,
-                filehash=file_chunker.get_file_hash() if exists else "",
-            )
-            conn.sendall(preTransferPacket.to_bytes())
-            if not exists:
-                self.logger.error(f"File '{request.filename}' does not exist.\
-                                    Notifying client and aborting transfer to {addr}.")
-                return
-            if not continueation and request.filesize > 0:
-                self.logger.info("Client requested continuation but no valid partial file found.\
-                                  Waiting for client approval.")
-                answer = conn.recv(3)  # Wait for client approval (could be improved with a proper message)
-                if answer != b"ACK":
-                    print(f"Client did not approve continuation. Aborting transfer to {addr}.")
-                    return
-            self.logger.info(f"Sent pre-transfer packet to {addr}: {preTransferPacket}")
-            self.logger.info(f"Starting file transfer to {addr} for file '{request.filename}'")
-            for chunk in file_chunker.get_chunks(start=start_byte):
-                conn.sendall(chunk)
-                conn.recv(3)  # Wait for ACK
 
     def _sigint_handler(self, sig, frame):
         """Signal handler that delegates to stop().

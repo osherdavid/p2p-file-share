@@ -39,7 +39,6 @@ class Ls(Command):
                          fg=typer.colors.BLUE if file_entry.is_dir else None)
             conn.sendall(self.ACK_STRING)
 
-
     @classmethod
     def help(cls) -> str:
         """Return a help string for the command."""

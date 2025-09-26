@@ -8,6 +8,7 @@ class Command(ABC):
 
     RECIEVE_BUFFER_SIZE = 4096  # 4KB
     ACK_STRING = b"ACK"
+    ERR_STRING = b"ERR"
 
     def __init__(self):
         """Initialize the command with a logger."""

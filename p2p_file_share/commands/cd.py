@@ -19,7 +19,7 @@ class Cd(Command):
             conn.sendall(self.ACK_STRING)
         except Exception as e:
             self.logger.error(f"Couldn't change working directory because: {e}")
-            conn.sendall(b"ERR")
+            conn.sendall(self.ERR_STRING)
 
 
     def execute_client(self, conn, directory: str, *args, **kwargs):

@@ -31,3 +31,4 @@ class FileEntry(GenericStruct):
     filename: CharArray(128)  # The name of the file.
     filesize: UINT64 # The size of the file in bytes
     is_dir: BOOL # Whether the entry is a directory.
+

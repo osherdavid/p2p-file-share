@@ -55,7 +55,8 @@ class Server:
         self.logger.info(f"Received command code '{command_code.decode()}' from {addr}")
         if command_code.decode() in CODE_TO_COMMAND:
             conn.sendall(b"ACK")
-            get_command(code=command_code.decode()).execute_server(conn, addr)
+            with conn:
+                get_command(code=command_code.decode()).execute_server(conn, addr)
         else:
             self.logger.error(f"Unknown command code '{command_code.decode()}' from {addr}")
             conn.sendall(b"ERR")

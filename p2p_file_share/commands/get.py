@@ -17,7 +17,7 @@ from p2p_file_share.commands.utils.hash_utils import check_file_integrity, get_f
 class Get(Command):
     """GET command: Retrieve a file from the server."""
 
-    def execute_server(self, conn, addr):
+    def execute_server(self, conn: socket.socket, addr):
         """Handle a single client connection in its own thread.
 
         :param conn: The client socket connection.
@@ -40,7 +40,7 @@ class Get(Command):
                 exists=exists,
                 continuation=continueation,
                 number_of_chunks=file_chunker.get_number_of_chunks(start=start_byte) if exists else 0,
-                filehash=get_file_hash(requested_file) if exists else 0,
+                filehash=get_file_hash(requested_file) if exists else "",
             )
             conn.sendall(preTransferPacket.pack())
             if not exists:
@@ -60,11 +60,12 @@ class Get(Command):
                 conn.sendall(chunk)
                 conn.recv(3)  # Wait for ACK
 
-    def execute_client(self, conn, filename: str, output: Path):
+    def execute_client(self, conn: socket.socket, filename: str, outputname: str):
         """Request a file from the server.
 
         :param filename: The name of the file to request.
         """
+        output = Path(outputname)
         output = (output / os.path.basename(filename)) if output.is_dir() else output
         self.logger.debug(f'Getting file "{filename}" from {conn} and saving to "{output}"')
         request = RequestPacket(
@@ -114,4 +115,4 @@ class Get(Command):
     @classmethod
     def help(cls) -> str:
         """Help message for the GET command."""
-        return "GET command: Retrieve a file from the server. Usage: GET <filename>"
+        return "get command: Retrieve a file from the server. Usage: get <filename>"

@@ -13,7 +13,7 @@ class RequestPacket(GenericStruct):
     filesize: UINT64 = 0
     # The SHA256 hash of the file.
     # Specified only if the file exists on the host - for continous downloading. Empty if not.
-    filehash: CharArray(64) = "" 
+    filehash: CharArray(64) = ""
 
 
 class PreTransferPacket(GenericStruct):

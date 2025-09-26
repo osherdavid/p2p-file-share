@@ -2,8 +2,8 @@ import signal
 import socket
 import threading
 
+from p2p_file_share.commands.commands import COMMAND_CODE_LENGTH, get_command
 from p2p_file_share.log import setup_logger
-from p2p_file_share.server.requests_handler import RequestsHandler
 
 
 class Server:
@@ -22,7 +22,6 @@ class Server:
         self._should_run.set()
         self._sock = None  # type: socket.socket | None
         self._register_signal_handlers()
-        self.requests_handler = RequestsHandler()
 
     def start(self):
         """Start the server: bind, listen, and accept connections."""
@@ -52,7 +51,9 @@ class Server:
 
     def _handle_client(self, conn: socket.socket, addr):
         """Handle a single client connection in its own thread."""
-        self.requests_handler.handle_client_download(conn, addr)
+        command_code = conn.recv(COMMAND_CODE_LENGTH)
+        self.logger.info(f"Received command code '{command_code.decode()}' from {addr}")
+        get_command(code=command_code.decode()).execute_server(conn, addr)
 
     def stop(self):
         """Stop the server: clear run flag and close the listening socket to unblock accept()."""

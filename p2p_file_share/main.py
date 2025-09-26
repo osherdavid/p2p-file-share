@@ -32,7 +32,7 @@ def get(filename:str, output: Path, host: str, port: int):
     """Get a file from a peer."""
     output = output if output else Path(os.path.basename(filename))
     print(f'Starting client to get file "{filename}" from {host}:{port} and save to "{output}"...')
-    Client(host, port).get(filename, output)
+    Client(host, port).execute_command("get", filename=filename, output=output)
 
 
 if __name__ == "__main__":

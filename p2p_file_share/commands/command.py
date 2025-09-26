@@ -7,6 +7,7 @@ class Command(ABC):
     """Abstract base class for command handlers."""
 
     RECIEVE_BUFFER_SIZE = 4096  # 4KB
+    ACK_STRING = b"ACK"
 
     def __init__(self):
         """Initialize the command with a logger."""

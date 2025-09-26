@@ -50,15 +50,15 @@ class Get(Command):
             if not continueation and request.filesize > 0:
                 self.logger.info("Client requested continuation but no valid partial file found.\
                                   Waiting for client approval.")
-                answer = conn.recv(3)  # Wait for client approval (could be improved with a proper message)
-                if answer != b"ACK":
+                answer = conn.recv(len(self.ACK_STRING))
+                if answer != self.ACK_STRING:
                     print(f"Client did not approve continuation. Aborting transfer to {addr}.")
                     return
             self.logger.info(f"Sent pre-transfer packet to {addr}: {preTransferPacket}")
             self.logger.info(f"Starting file transfer to {addr} for file '{requested_file}'")
             for chunk in file_chunker.get_chunks(start=start_byte):
                 conn.sendall(chunk)
-                conn.recv(3)  # Wait for ACK
+                conn.recv(len(self.ACK_STRING))  # Wait for ACK
 
     def execute_client(self, conn: socket.socket, filename: str, outputname: str):
         """Request a file from the server.
@@ -80,7 +80,7 @@ class Get(Command):
             if request.filesize > 0 and not preTransferPacket.continuation:
                 if typer.confirm("The local file does not match the server's file. Overwrite?", default=True):
                     typer.secho(f"Overwriting {output}.", fg=typer.colors.YELLOW)
-                    conn.sendall(b"ACK")
+                    conn.sendall(self.ACK_STRING)
                     self._download_file(output, preTransferPacket, conn)
                     return
                 else:
@@ -106,7 +106,7 @@ class Get(Command):
             for _ in tqdm(range(preTransferPacket.number_of_chunks)):
                 chunk = sock.recv(4096)
                 f.write(chunk)
-                sock.sendall(b"ACK")  # Send acknowledgment for each chunk
+                sock.sendall(self.ACK_STRING)  # Send acknowledgment for each chunk
         if check_file_integrity(output, preTransferPacket.filehash):
             typer.secho(f'File "{output}" downloaded successfully.', fg=typer.colors.GREEN)
         else:
@@ -115,4 +115,4 @@ class Get(Command):
     @classmethod
     def help(cls) -> str:
         """Help message for the GET command."""
-        return "get command: Retrieve a file from the server. Usage: get <filename>"
+        return "Retrieve a file from the server. Usage: get <filename>"

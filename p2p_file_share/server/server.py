@@ -2,7 +2,7 @@ import signal
 import socket
 import threading
 
-from p2p_file_share.commands.commands import COMMAND_CODE_LENGTH, get_command
+from p2p_file_share.commands.commands import CODE_TO_COMMAND, COMMAND_CODE_LENGTH, get_command
 from p2p_file_share.log import setup_logger
 
 
@@ -53,7 +53,12 @@ class Server:
         """Handle a single client connection in its own thread."""
         command_code = conn.recv(COMMAND_CODE_LENGTH)
         self.logger.info(f"Received command code '{command_code.decode()}' from {addr}")
-        get_command(code=command_code.decode()).execute_server(conn, addr)
+        if command_code.decode() in CODE_TO_COMMAND:
+            conn.sendall(b"ACK")
+            get_command(code=command_code.decode()).execute_server(conn, addr)
+        else:
+            self.logger.error(f"Unknown command code '{command_code.decode()}' from {addr}")
+            conn.sendall(b"ERR")
 
     def stop(self):
         """Stop the server: clear run flag and close the listening socket to unblock accept()."""

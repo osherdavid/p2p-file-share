@@ -29,5 +29,8 @@ class Client:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conn:
             conn.connect((self.host, self.port))
             conn.sendall(NAME_TO_CODE[command_name].encode())
+            ack = conn.recv(3)
+            if ack != b"ACK":
+                raise ConnectionError(f"Server did not acknowledge command '{command_name}'")
             command = get_command(name=command_name)
             command.execute_client(conn, *args, **kwargs)

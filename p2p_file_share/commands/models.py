@@ -23,3 +23,11 @@ class PreTransferPacket(GenericStruct):
     continuation: BOOL # Whether this is a continuation of a previous download.
     number_of_chunks: UINT64 = 0 # Number of chunks the file is divided into. 0 if file does not exist.
     filehash: CharArray(64) = "" # The SHA256 hash of the file. Empty if file does not exist.
+
+
+class FileEntry(GenericStruct):
+    """Represents a file entry in the file list."""
+
+    filename: CharArray(128)  # The name of the file.
+    filesize: UINT64 # The size of the file in bytes
+    is_dir: BOOL # Whether the entry is a directory.

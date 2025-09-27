@@ -13,7 +13,7 @@ packages = [
 path = "p2p_file_share/main.py"
 
 [tool.poetry.dependencies]
-python = ">=3.13"
+python = ">=3.10"
 click = "^8.3.0"
 tqdm = "^4.67.1"
 typer = "^0.19.2"

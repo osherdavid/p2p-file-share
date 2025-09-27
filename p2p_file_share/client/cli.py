@@ -13,9 +13,9 @@ class CLI:
     def start_shell(self):
         """Start the command-line interface shell."""
         while True:
-            command_line = input(self.shell_prompt).strip().lower().split()
+            command_line = input(self.shell_prompt).strip().split()
             if command_line:
-                command = command_line[0] if command_line else ""
+                command = command_line[0].lower() if command_line else ""
                 arguments = command_line[1:] if len(command_line) > 1 else []
                 if command == "help":
                     print("Available commands:")

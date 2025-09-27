@@ -2,11 +2,11 @@ set windows-shell := ["C:\\Program Files\\Git\\bin\\sh.exe","-c"]
 set positional-arguments
 
 @install:
-    python -m pip install --user poetry
+    python -m pip install poetry
     poetry install
 
 @install-dev:
-    python -m pip install --user poetry
+    python -m pip install poetry
     poetry install --with dev
 
 @run *args='':

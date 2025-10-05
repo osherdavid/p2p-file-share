@@ -1,3 +1,4 @@
+import logging
 import signal
 import socket
 import threading
@@ -11,12 +12,12 @@ class Server:
 
     HOST: str = "0.0.0.0"  # Listen on all interfaces
 
-    def __init__(self, port: int):
+    def __init__(self, port: int, logging_level: int=logging.INFO):
         """Initialize the server with the specified port.
 
         :param port: The port number to listen on.
         """
-        self.logger = setup_logger("Server")
+        self.logger = setup_logger("Server", logging_level)
         self.port = port
         self._should_run = threading.Event()
         self._should_run.set()
@@ -78,7 +79,7 @@ class Server:
         :param sig: The signal number.
         :param frame: The current stack frame.
         """
-        print("SIGINT received, stopping server...")
+        self.logger.info("SIGINT received, stopping server...")
         try:
             self.stop()
         except Exception as e:

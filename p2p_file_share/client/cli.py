@@ -1,3 +1,5 @@
+import logging
+
 from p2p_file_share.client.client import Client
 from p2p_file_share.commands.commands import print_commands
 
@@ -5,10 +7,10 @@ from p2p_file_share.commands.commands import print_commands
 class CLI:
     """A simple command-line interface (CLI) for interacting with the P2P file sharing server."""
 
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int, logging_level: int=logging.INFO):
         """Initialize the CLI with the server's host and port."""
         self.shell_prompt = f"${host}:{port}> "
-        self.client = Client(host, port)
+        self.client = Client(host, port, logging_level)
 
     def start_shell(self):
         """Start the command-line interface shell."""

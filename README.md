@@ -31,5 +31,9 @@ Or, follow the justfile if you'd like to install manually.
 ```python
 poetry run p2p-file-share
 ```
+Or, more easily:
+```bash
+just run <args>
+```
 
 Of course you may also install it directly to your OS, though i would recommend using poetry to save you the hustle of managing versions.

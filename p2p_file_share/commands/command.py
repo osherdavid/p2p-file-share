@@ -10,6 +10,18 @@ class Command(ABC):
     ACK_STRING = b"ACK"
     ERR_STRING = b"ERR"
 
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """Create a new instance of the command class.
+
+        This is a singleton implementation.
+        since there's no need for more then one instance of each command.
+        """
+        if not isinstance(cls._instance, cls):
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
         """Initialize the command with a logger."""
         self.logger = setup_logger(self.__class__.__name__)

@@ -7,7 +7,7 @@ from cstructpy.primitives import BOOL, UINT64, CharArray
 class RequestPacket(GenericStruct):
     """Packet sent by the client to request a file from the server."""
 
-    filename: CharArray(128)
+    filename: CharArray(256)
     # The file size in bytes.
     # Specified only if the file exists on the host - for continous downloading. 0 if not.
     filesize: UINT64 = 0
@@ -28,7 +28,7 @@ class PreTransferPacket(GenericStruct):
 class FileEntry(GenericStruct):
     """Represents a file entry in the file list."""
 
-    filename: CharArray(128)  # The name of the file.
+    filename: CharArray(256)  # The name of the file.
     filesize: UINT64 # The size of the file in bytes
     is_dir: BOOL # Whether the entry is a directory.
 

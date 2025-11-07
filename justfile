@@ -20,3 +20,6 @@ set positional-arguments
     
 @format:
     poetry run ruff check --fix p2p_file_share
+
+@test:
+    poetry run pytest -W ignore

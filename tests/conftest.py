@@ -1,15 +1,12 @@
-import logging
 import socket
 import threading
 import time
-from types import SimpleNamespace
-from typing import Any, Callable
+from typing import Any, Callable, Generator, Tuple, List
 
 import pytest
 
 from p2p_file_share.client.client import Client
 from p2p_file_share.server.server import Server
-
 
 HOST = "127.0.0.1"
 
@@ -38,7 +35,7 @@ def _wait_for_server(host: str, port: int, timeout: float = 5.0) -> None:
     raise TimeoutError("Server did not start in time")
 
 
-def _run_with_retry(client: Client, command: str, *args, timeout: float = 5.0):
+def _run_with_retry(client: Client, command: str, *args, timeout: float = 5.0) -> None:
     """Retry client commands until the server begins accepting connections."""
     deadline = time.monotonic() + timeout
     last_error: Exception | None = None
@@ -54,7 +51,7 @@ def _run_with_retry(client: Client, command: str, *args, timeout: float = 5.0):
 
 
 @pytest.fixture(autouse=True)
-def disable_tqdm(monkeypatch):
+def disable_tqdm(monkeypatch) -> None:
     """Replace progress bars with pass-through iterables for faster, quieter tests."""
 
     def _passthrough(iterable, *args, **kwargs):
@@ -65,7 +62,7 @@ def disable_tqdm(monkeypatch):
 
 
 @pytest.fixture
-def running_server():
+def running_server() -> Generator[Tuple[str, int], None]:
     """Spin up a real server instance bound to a free localhost port."""
     port = _get_free_port()
     server = Server(port)
@@ -73,17 +70,17 @@ def running_server():
     thread.start()
     try:
         _wait_for_server(HOST, port)
-        yield SimpleNamespace(host=HOST, port=port)
+        yield (HOST, port)
     finally:
         server.stop()
         thread.join(timeout=5)
 
 
 @pytest.fixture
-def run_with_retry() -> Callable[[Client, str, Any], Any]:
+def run_with_retry() -> Callable[[Client, str, List[Any]], Any]:
     """Expose the retry helper to tests via a fixture."""
 
-    def _runner(client: Client, command: str, *args, timeout: float = 5.0):
+    def _runner(client: Client, command: str, *args, timeout: float = 5.0) -> None:
         return _run_with_retry(client, command, *args, timeout=timeout)
 
     return _runner

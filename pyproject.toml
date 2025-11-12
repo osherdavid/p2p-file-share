@@ -24,6 +24,7 @@ mypy = "^1.18.2"
 ruff = "^0.13.1"
 ipdb = "^0.13.13"
 types-tqdm = "^4.67.0.20250809"
+pytest = "^8.3.3"
 
 [tool.poetry.scripts]
 p2p-file-share = "p2p_file_share.main:main"

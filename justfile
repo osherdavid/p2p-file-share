@@ -16,7 +16,10 @@ set positional-arguments
     poetry run mypy .
 
 @check-format:
-    poetry run ruff check p2p_file_share
+    poetry run ruff check p2p_file_share tests
     
 @format:
-    poetry run ruff check --fix p2p_file_share
+    poetry run ruff check --fix p2p_file_share tests
+
+@test:
+    poetry run pytest -W ignore

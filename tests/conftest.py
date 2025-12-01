@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-from typing import Any, Callable, Generator, Tuple, List
+from typing import Any, Callable, Generator, List, Tuple
 
 import pytest
 

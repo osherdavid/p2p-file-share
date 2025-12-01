@@ -62,7 +62,7 @@ def disable_tqdm(monkeypatch) -> None:
 
 
 @pytest.fixture
-def running_server() -> Generator[Tuple[str, int], None]:
+def running_server() -> Generator[Tuple[str, int], None, None]:
     """Spin up a real server instance bound to a free localhost port."""
     port = _get_free_port()
     server = Server(port)
